@@ -2,49 +2,46 @@ import time
 import requests
 
 def pukat_harimau():
-    # ALAMAT DATA REAL-TIME (WAJIB ADA PERKATAAN 'api.')
+    # URL ASAL PALING STABIL
     url = "https://binance.com"
-    
-    # Koin sasaran: BTC, ETH, SOL, dan USDC (Termasuk USDT volume)
     targets = ['BTCUSDT', 'ETHUSDT', 'SOLUSDT', 'USDCUSDT']
     
     print("\n--- 🔍 SCANNING VOLUME GLOBAL (REAL-TIME) ---")
     
     try:
-        # Bot ambil data terus dari server (Timeout 15 saat supaya tak jem)
-        response = requests.get(url, timeout=15)
+        # Kita tambah 'headers' supaya server Binance nampak bot kau macam orang betul
+        headers = {'User-Agent': 'Mozilla/5.0'}
+        response = requests.get(url, headers=headers, timeout=20)
         
-        # Check kalau server bagi respon betul (200)
         if response.status_code == 200:
             data = response.json()
             total_v = 0
-            
             for item in data:
                 if item['symbol'] in targets:
                     symbol = item['symbol']
+                    vol_usd = float(item['quoteVolume'])
                     price = float(item['lastPrice'])
-                    vol_usd = float(item['quoteVolume']) # Nilai dagangan dalam USD
                     total_v += vol_usd
-                    
-                    # Kira fee 0.1% untuk setiap koin
-                    fee_individu = vol_usd * 0.001
-                    print(f"[{symbol}] Price: ${price:,.2f} | Vol: ${vol_usd:,.0f} | Fee 0.1%: ${fee_individu:,.2f}")
+                    fee_01 = vol_usd * 0.001
+                    print(f"[{symbol}] Price: ${price:,.2f} | Vol: ${vol_usd:,.0f} | Fee 0.1%: ${fee_01:,.2f}")
 
-            # KIRA TOTAL FEE KESELURUHAN (TANPA SYARAT VOLUME)
             total_fee = total_v * 0.001
             print(f"----------------------------------------------")
-            print(f"🔥 VOLUME TERKUMPUL: ${total_v:,.0f}")
+            print(f"🔥 TOTAL VOLUME: ${total_v:,.0f}")
             print(f"💰 TOTAL FEE KAU (0.1%): ${total_fee:,.2f}")
-            print(f"📡 STATUS: Pukat sedang sauk volume market...")
+            print(f"📡 STATUS: Pukat tengah sauk volume...")
+        
+        elif response.status_code == 202:
+            print("⚠️ Server Binance tengah sesak. Bot tengah beratur, tunggu jap...")
         else:
-            print(f"⚠️ Alamat data sibuk. Status: {response.status_code}")
+            print(f"⚠️ Status {response.status_code}. Tengah cuba hubung semula...")
 
     except Exception as e:
-        print(f"⚠️ Sedang menstabilkan talian: {e}")
+        print(f"⚠️ Menstabilkan talian... {e}")
 
 if __name__ == "__main__":
-    print("🚀 PUKAT HARIMAU (SAUK SEMUA) DIAKTIFKAN...")
+    print("🚀 PUKAT HARIMAU (24 JAM) DIAKTIFKAN...")
     while True:
         pukat_harimau()
-        # Bot berehat 20 saat sebelum sauk lagi
-        time.sleep(20)
+        # Kita buat 30 saat supaya server tak sekat IP kau
+        time.sleep(30)
